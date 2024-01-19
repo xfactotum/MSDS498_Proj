@@ -2,7 +2,7 @@ import os
 import pandas as pd
 
 from models.gpt4all_model import MyGPT4ALL
-
+from langchain.chat_models import ChatOpenAI
 # import all langchain modules
 from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -40,12 +40,17 @@ vector_db = Chroma(
     embedding_function=embeddings
 )
 # ingest_data()
+
+llm = ChatOpenAI(model_name="gpt-3.5-turbo-1106", openai_api_key="")
+'''
+
 llm = MyGPT4ALL(
     model_folder_path=GPT4ALL_MODEL_FOLDER_PATH,
     model_name=GPT4ALL_MODEL_NAME,
     allow_streaming=GPT4ALL_ALLOW_STREAMING,
     allow_download=GPT4ALL_ALLOW_DOWNLOAD
 )
+'''
 retriever = vector_db.as_retriever(search_kwargs={"k": 4})
 qa_chain = RetrievalQA.from_chain_type(
     llm=llm,
@@ -55,6 +60,7 @@ qa_chain = RetrievalQA.from_chain_type(
 )
 while True:
     # query = "Give me a spicy recipe"
+    # Chatquery = "Could you help me with a recipe for autumn"
     query = input("What's on your mind: ")
     if query == 'exit':
         break
