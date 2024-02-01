@@ -1,13 +1,9 @@
 import os
 import pandas as pd
 
-from models.gpt4all_model import MyGPT4ALL
 from langchain.chat_models import ChatOpenAI
 # import all langchain modules
 
-#GPT4ALLEmbeddings no
-
-#from langchain_community.embeddings import GPT4AllEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import DirectoryLoader
@@ -29,7 +25,7 @@ from langchain.prompts import (
     ChatPromptTemplate,
     MessagesPlaceholder
 )
-#import streamlit as st
+import streamlit as st
 from streamlit_chat import message
 from utils import *
 
@@ -54,14 +50,9 @@ def ingest_data():
 MODULE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIRECTORY = os.path.dirname(MODULE_DIRECTORY)
 CHROMA_DB_DIRECTORY = f'{PROJECT_DIRECTORY}/db'
-# GPT4ALL_MODEL_NAME = 'gpt4all-13b-snoozy-q4_0.gguf'
-# GPT4ALL_MODEL_NAME = 'nous-hermes-llama2-13b.Q4_0.gguf'
-# GPT4ALL_MODEL_FOLDER_PATH = f'{PROJECT_DIRECTORY}/models'
-# GPT4ALL_ALLOW_STREAMING = True
-# GPT4ALL_ALLOW_DOWNLOAD = False
+
 
 client = chromadb.PersistentClient(path=CHROMA_DB_DIRECTORY)
-#embeddings = GPT4AllEmbeddings()
 embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 vector_db = Chroma(
     client=client,
@@ -70,15 +61,8 @@ vector_db = Chroma(
 # ingest_data()
 
 llm = ChatOpenAI(model_name="gpt-3.5-turbo-1106", openai_api_key="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")
-'''
 
-llm = MyGPT4ALL(
-    model_folder_path=GPT4ALL_MODEL_FOLDER_PATH,
-    model_name=GPT4ALL_MODEL_NAME,
-    allow_streaming=GPT4ALL_ALLOW_STREAMING,
-    allow_download=GPT4ALL_ALLOW_DOWNLOAD
-)
-'''
+
 
 '''
 look more into ChromaDB parameters & similarity searches
@@ -90,24 +74,6 @@ qa_chain = RetrievalQA.from_chain_type(
     retriever=retriever,
     return_source_documents=True, verbose=True
 )
-
-
-while True:
-    # query = "Give me a spicy recipe"
-    # Chatquery = "Could you help me with a recipe for autumn"
-    query = input("What's on your mind: ")
-    if query == 'exit':
-        break
-    result = qa_chain(query)
-    answer, docs = result['result'], result['source_documents']
-
-    print(answer)
-
-    print("#" * 30, "Recipes", "#" * 30)
-    for document in docs:
-        print("\n> TAGS: " + document.metadata["tags"] + ":")
-        print(document.page_content)
-    print("#" * 30, "Recipes", "#" * 30)
 
 
 st.subheader("Chatbot with Langchain, ChatGPT, ChromaDB, and Streamlit")
@@ -129,8 +95,22 @@ and if the answer is not contained within the text below, say 'I don't know'""")
 human_msg_template = HumanMessagePromptTemplate.from_template(template="{input}")
 
 prompt_template = ChatPromptTemplate.from_messages([system_msg_template, MessagesPlaceholder(variable_name="history"), human_msg_template])
+#prompt_template = ChatPromptTemplate.from_messages([system_msg_template, MessagesPlaceholder(variable_name=vector_db), human_msg_template])
+                                                    
+conversation = ConversationChain(memory=st.session_state.buffer_memory, prompt=prompt_template, llm=llm, verbose=True)
 
-st.title("Langchain Chatbot")
+
+# Set the title of your Streamlit app
+st.title("SousChefAI")
+
+# Use HTML to set the favicon to a chef emoji
+st.markdown('<link rel="shortcut icon" href="https://cdn.create.vista.com/api/media/medium/32224987/stock-vector-chef-cartoon-with-thumb-up?token=," type="image/x-icon">', unsafe_allow_html=True)
+st.markdown('<link rel="icon" href="data:https://cdn.create.vista.com/api/media/medium/32224987/stock-vector-chef-cartoon-with-thumb-up?token=;," type="image/x-icon">', unsafe_allow_html=True)
+
+# Your Streamlit app content
+st.write("Hello, this is your SousChefAI a chat assistant for recipe development!")
+
+
 ...
 response_container = st.container()
 textcontainer = st.container()
@@ -139,7 +119,7 @@ with textcontainer:
     query = st.text_input("Query: ", key="input")
     ...
 with response_container:
-    if st.session_state['responses']:
+    if st.session_state['responses']:   
         for i in range(len(st.session_state['responses'])):
             message(st.session_state['responses'][i],key=str(i))
             if i < len(st.session_state['requests']):
@@ -147,12 +127,14 @@ with response_container:
 
 
 ...
-conversation = ConversationChain(memory=st.session_state.buffer_memory, prompt=prompt_template, llm=llm, verbose=True)
 
+'''
+error possibly here w. vector_db variable assignment
+'''
 if query:
     with st.spinner("typing..."):
         ...
-        response = conversation.predict(input=f"Context:\n {context} \n\n Query:\n{query}")
+        response = conversation.predict(input=f"Context:\n {qa_chain} \n\n Query:\n{query}")
     st.session_state.requests.append(query)
     st.session_state.responses.append(response)
 
@@ -168,6 +150,10 @@ def query_refiner(conversation, query):
     )
     return response['choices'][0]['text']
 
+
+'''
+error possibly here
+'''
 
 def find_match(input):
     # Encode the input into a vector
