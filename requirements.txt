@@ -28,3 +28,4 @@ detectron2@git+https://github.com/facebookresearch/detectron2.git@v0.6#egg=detec
 poppler-utils
 sentence_transformers -q
 streamlit
+streamlit_chat
