@@ -1,7 +1,22 @@
-MSDS498_Proj
+Sous Chef Chatbot  🤖
 ==============================
 
 Chatbot that recommends recipes and guides people through preparing it.
+
+## 🔧 Setup
+1. This application runs with Python 3.11.
+2. Install dependencies 
+   ```shell
+   pip install -r requirements
+   ``` 
+3. Go to the src directory and start the app
+## 🚀 Ready, set, launch!
+   ```shell
+   streamlit run app.py
+   ```
+4. Enter the OpenAI API key then hit enter
+5. Follow the screen instructions
+
 
 Project Organization
 ------------
