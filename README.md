@@ -7,7 +7,7 @@ Chatbot that recommends recipes and guides people through preparing it.
 1. This application runs with Python 3.11.
 2. Install dependencies 
    ```shell
-   pip install -r requirements
+   pip install -r requirements.txt
    ``` 
 3. Go to the src directory and start the app
 ## 🚀 Ready, set, launch!
