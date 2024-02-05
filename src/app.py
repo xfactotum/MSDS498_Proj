@@ -104,7 +104,7 @@ CHROMA_DB_DIRECTORY = '../db'
 # Configure streamlit app title, icon, and layout
 st.set_page_config(
     page_title="Sous Chef Chatbot",
-    page_icon=":robot_face:",
+    page_icon="👨‍🍳",
     layout="wide"
 )
 
@@ -162,13 +162,16 @@ else:
             st.session_state.messages.append({"role": "user", "content": prompt})
 
     for message in st.session_state.messages:  # Display the prior chat messages
-        with st.chat_message(message["role"]):
-            st.write(message["content"])
-
+        if message["role"] == "assistant":
+            with st.chat_message(message["role"], avatar="👨‍🍳"):
+                st.write(message["content"])
+        else:
+            with st.chat_message(message["role"], avatar="😋"):
+                st.write(message["content"])
     # If last message is not from assistant, generate a new response
     if st.session_state.messages[-1]["role"] != "assistant":
         if len(st.session_state.data) == 0 and len(st.session_state.selection) == 0:
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar="👨‍🍳"):
                 with st.spinner("Processing..."):
                     documents = st.session_state.chatbot.get_docs(prompt)
                     st.session_state.key_question = prompt
@@ -188,7 +191,7 @@ else:
                                                           "Try again."})
                     st.rerun()
         elif len(st.session_state.selection) > 0:
-            with st.chat_message("assistant"):
+            with st.chat_message("assistant", avatar="👨‍🍳"):
                 with st.spinner("Processing..."):
                     response = st.session_state.chatbot.answer(prompt)
                     st.write(response)
