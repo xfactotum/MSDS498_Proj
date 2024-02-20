@@ -108,10 +108,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Prompt user for the API key
-api_key = st.sidebar.text_input("API KEY", type="password")
-if not api_key and "OPENAI_API_KEY" in os.environ.keys():
+# Prompt user for the API key if it is not already set in an environment variable
+if "OPENAI_API_KEY" in os.environ.keys():
     api_key = os.environ["OPENAI_API_KEY"]
+else:
+    api_key = st.sidebar.text_input("API KEY", type="password")
 
 # Initialize session states
 if "messages" not in st.session_state:  # Initialize the chat messages history
