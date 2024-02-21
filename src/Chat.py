@@ -72,7 +72,7 @@ def dataframe_with_selections():
                        "name": st.column_config.TextColumn(width="large")
                        },
         disabled=columns,
-        on_change=callback
+        #on_change=callback
     )
 
     # Filter the dataframe using the temporary column, then drop the column
@@ -144,6 +144,7 @@ else:
     st.text("")
 
     dataframe_with_selections()
+    callback_button = st.button("Generate Recipe", key="callback",on_click=callback)
 
     # Text box for user input
     clear_button = st.button("Reset Conversation", key="clear")
