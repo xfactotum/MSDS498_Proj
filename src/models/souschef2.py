@@ -41,11 +41,10 @@ class Chatbot(Chain, ABC):
             memory=self.memory
         )
 
-    def get_docs(self, query: str, recipe_ids: List[str] = None) -> List[Document]:
+    def get_docs(self, query: str, k: int, recipe_ids: List[str] = None) -> List[Document]:
         """
         Gets relevant documents from the knowledge base to provide context in answering the question.
         """
-        k = 10
         docs = []
         ids = []
         if recipe_ids:
@@ -56,7 +55,7 @@ class Chatbot(Chain, ABC):
                         docs.append(doc)
                         ids.append(doc[0].metadata['recipe_id'])
         else:
-            docs = self.knowledge_base.similarity_search_with_score(query=query, k=10)
+            docs = self.knowledge_base.similarity_search_with_score(query=query, k=k)
         sorted_docs = sorted(docs, key=lambda x: x[1], reverse=True)
 
         return [doc[0] for doc in sorted_docs]
@@ -73,12 +72,13 @@ class Chatbot(Chain, ABC):
 
     def _call(self,
               query: str,
+              k: int,
               recipe_ids: Optional[Union[List[str], None]] = None,
               run_manager: Optional[CallbackManagerForChainRun] = None) -> Dict:
         inputs = {self.input_keys: query}
 
         # Retrieve documents from the knowledge-base and format them
-        documents = self.get_docs(query=query, recipe_ids=recipe_ids)
+        documents = self.get_docs(query=query, k=k, recipe_ids=recipe_ids)
         combined_documents = self.combine_documents(documents)
 
         qa_prompt = f"""Refer to question and use data delimited by triple backticks as context to answer
@@ -91,6 +91,7 @@ class Chatbot(Chain, ABC):
 
         Question: {query}
         Detailed Answer:"""
+        #print(qa_prompt)
         t_start = time.time()
         answer = self.conversation.run(qa_prompt)
         outputs = {self.output_key: answer}
@@ -100,26 +101,6 @@ class Chatbot(Chain, ABC):
             self.memory.save_context(inputs, outputs)
         t_elapsed = round(time.time() - t_start,2)
         return answer, tokens_in, tokens_out, t_elapsed
-
-    def answer(self, query: str, recipe_ids: Union[None, str] = None):
-        if not recipe_ids:
-            prompt = f"""Answer the question only if it is consistent with the provided context related to recipe.
-            If the question is completely unrelated, apologize and state that you can only answer
-            questions about recipes.
-            
-            Question: {query}
-            """
-            t_start = time.time()
-            response = self.conversation.run(prompt)
-            tokens_in = self.llm.get_num_tokens(qa_prompt)
-            tokens_out = self.llm.get_num_tokens(answer)
-            inputs = {self.input_keys: query}
-            outputs = {self.output_key: response}
-            if self.memory is not None:
-                self.memory.save_context(inputs, outputs)
-            t_elapsed = round(time.time() - t_start,2)
-            return response, tokens_in, tokens_out, t_elapsed
-        return self._call(query, recipe_ids)
 
     def clear_conversation_history(self):
         self.conversation.memory.clear()

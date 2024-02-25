@@ -148,17 +148,22 @@ else:
     if "resp_time" not in st.session_state:
         st.session_state.resp_time = 0.00
 
-    st.text("The Chat_1 page will create a dataframe of the 10 most similar retrievals to the")
-    st.text("User's query. The user will then be asked to select a recipe from this dataframe.")
-    st.text("Once selected, Sous Chef will generate instructions for this recipe.")
-    st.text("")
-    col1, col2, col3, col4= st.columns(4)
-    col1.metric("Prompt Tokens:", st.session_state.tokens_in)
-    col2.metric("Response Tokens:", st.session_state.tokens_out)
-    col3.metric("API Cost:", "$"+str(round(st.session_state.tokens_in/1000*.01 +
-                                           st.session_state.tokens_out/1000*.03,2)))
-    col4.metric("Response Time:", str(st.session_state.resp_time) + " s")
-    st.text("")
+    with st.container(border = True):
+        st.caption("FOR DEVELOPMENT PURPOSES ONLY")
+        st.text("The Chat_1 page will create a dataframe of the 10 most similar retrievals to the")
+        st.text("User's query. The user will then be asked to select a recipe from this dataframe.")
+        st.text("Once selected, Sous Chef will generate instructions for this recipe.")
+        st.text("")
+        col1, col2 = st.columns([3,1])
+        with col1.container(border = True):
+            st.caption("CUMULATIVE FOR THIS SESSION")
+            col11, col12, col13 = st.columns(3)
+            col11.metric("Prompt Tokens:", st.session_state.tokens_in)
+            col12.metric("Response Tokens:", st.session_state.tokens_out)
+            col13.metric("API Cost:", "$"+str(round(st.session_state.tokens_in/1000*.01 +
+                                               st.session_state.tokens_out/1000*.03,2)))
+        col2.metric("Last Response Time:", str(st.session_state.resp_time) + " s")
+
     st.image("../images/SousChefLogo.png")
     st.text("")
     st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")

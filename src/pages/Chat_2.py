@@ -94,17 +94,27 @@ else:
         st.session_state.tokens_out2 = 0
     if "resp_time2" not in st.session_state:
         st.session_state.resp_time2 = 0.00
+    if "k" not in st.session_state:
+        st.session_state.k = 3
 
-    st.text("The Chat_2 page will retrieve the 3 most similar recipes to the User's query.")
-    st.text("These 3 recipes are used as context when generating the response.")
-    st.text("")
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Prompt Tokens:", st.session_state.tokens_in2)
-    col2.metric("Response Tokens:", st.session_state.tokens_out2)
-    col3.metric("API Cost:", "$"+str(round(st.session_state.tokens_in2/1000*.01 +
-                                           st.session_state.tokens_out2/1000*.03, 2)))
-    col4.metric("Response Time:", str(st.session_state.resp_time2) + " s")
-    st.text("")
+    with ((((st.container(border = True))))):
+        st.caption("FOR DEVELOPMENT PURPOSES ONLY")
+        st.text("The Chat_2 page will retrieve the k most similar recipes to the User's query.")
+        st.text("These k recipes are used as context when generating the response.")
+        st.text("")
+        colA, colB = st.columns([2, 1])
+        with colA:
+            st.session_state.k = st.select_slider('Select a value for k:', options = [3,4,5,6,7,8,9,10],value = 3)
+        col1, col2 = st.columns([3, 1])
+        with col1.container(border=True):
+            st.caption("CUMULATIVE FOR THIS SESSION")
+            col11, col12, col13 = st.columns(3)
+            col11.metric("Prompt Tokens:", st.session_state.tokens_in2)
+            col12.metric("Response Tokens:", st.session_state.tokens_out2)
+            col13.metric("API Cost:", "$" + str(round(st.session_state.tokens_in2 / 1000 * .01 +
+                                                      st.session_state.tokens_out2 / 1000 * .03, 2)))
+        col2.metric("Last Response Time:", str(st.session_state.resp_time2) + " s")
+
     st.image("../images/SousChefLogo.png")
     st.text("")
     st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
@@ -134,23 +144,16 @@ else:
     # If last message is not from assistant, generate a new response
     if st.session_state.messages2[-1]["role"] != "assistant":
         with st.chat_message("assistant"):
-            # with st.spinner("Processing..."):
-                documents = st.session_state.chatbot2.get_docs(prompt)
-                st.session_state.key_question2 = prompt
-                ids = [doc.metadata['recipe_id'] for doc in documents[0:2] if 'recipe_id' in doc.metadata.keys()]
-                if len(ids) > 0:
-                    if "key_question2" in st.session_state:
-                        query = st.session_state.key_question2
-                    else:
-                        query = last_prompt()
-                    with st.spinner("Processing..."):
-                        output, tokens_in, tokens_out, t_elapsed = st.session_state.chatbot2.answer(query, ids)
-                        st.session_state.resp_time2 = t_elapsed
-                        st.session_state.tokens_in2 = st.session_state.tokens_in2 + tokens_in
-                        st.session_state.tokens_out2 = st.session_state.tokens_out2 + tokens_out
-                        st.session_state.messages2.append({"role": "assistant", "content": output})
-                else:
-                    st.session_state.messages2.append({"role": "assistant",
-                                                      "content": "Sorry there is not such a recipe in our database. "
-                                                      "Try again."})
-                st.rerun()
+            st.session_state.key_question2 = prompt
+            if "key_question2" in st.session_state:
+                query = st.session_state.key_question2
+            else:
+                query = last_prompt()
+            with st.spinner("Processing..."):
+                output, tokens_in, tokens_out, t_elapsed = \
+                    st.session_state.chatbot2._call(query, k = st.session_state.k)
+                st.session_state.resp_time2 = t_elapsed
+                st.session_state.tokens_in2 = st.session_state.tokens_in2 + tokens_in
+                st.session_state.tokens_out2 = st.session_state.tokens_out2 + tokens_out
+                st.session_state.messages2.append({"role": "assistant", "content": output})
+            st.rerun()
