@@ -6,7 +6,7 @@ import streamlit as st
 import math
 
 st.title("Explore the Recipes!")
-st.text("Use the interactive filters below to refine your search.")
+st.text("Use the interactive filters below the dataframe preview to refine your search.")
 my_df = st.empty()
 
 # Load a data frame

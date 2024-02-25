@@ -16,9 +16,6 @@ import chromadb
 # import streamlit modules
 import streamlit as st
 
-#Import time module
-import time
-
 @st.cache_resource(show_spinner=False)
 def load_data():
     df = pd.read_parquet("../data/processed/final_recipe_sample.parquet")
@@ -148,8 +145,6 @@ else:
         st.session_state.tokens_in = 0
     if "tokens_out" not in st.session_state:
         st.session_state.tokens_out = 0
-    if "start_time" not in st.session_state:
-        st.session_state.start_time = 0.00
     if "resp_time" not in st.session_state:
         st.session_state.resp_time = 0.00
 
@@ -160,7 +155,8 @@ else:
     col1, col2, col3, col4= st.columns(4)
     col1.metric("Prompt Tokens:", st.session_state.tokens_in)
     col2.metric("Response Tokens:", st.session_state.tokens_out)
-    col3.metric("API Cost:", "$"+str(round(st.session_state.tokens_in/1000*.01 + st.session_state.tokens_out/1000*.03,2)))
+    col3.metric("API Cost:", "$"+str(round(st.session_state.tokens_in/1000*.01 +
+                                           st.session_state.tokens_out/1000*.03,2)))
     col4.metric("Response Time:", str(st.session_state.resp_time) + " s")
     st.text("")
     st.header("Sous Chef Chatbot")
@@ -201,8 +197,8 @@ else:
                     ids = [doc.metadata['recipe_id'] for doc in documents if 'recipe_id' in doc.metadata.keys()]
                     candidates = recipe_df[recipe_df["id"].isin(ids)]
                     if candidates.shape[0] > 0:
-                        st.session_state.data = candidates[['name', 'minutes', 'description', 'tags', 'id']].reset_index(
-                            drop=True)
+                        st.session_state.data = candidates[['name', 'minutes', 'description',
+                                                            'tags', 'id']].reset_index(drop=True)
                         message = {"role": "assistant",
                                    "content": "Great! Now choose from the list of recipes above to get "
                                               "step-by-step instructions."
@@ -210,7 +206,7 @@ else:
                         st.session_state.messages.append(message)
                     else:
                         st.session_state.messages.append({"role": "assistant",
-                                                          "content": "Sorry there is not such a recipe in our database. "
+                                                          "content": "Sorry there is not such a recipe in our database."
                                                           "Try again."})
                     st.rerun()
         elif len(st.session_state.selection) > 0:

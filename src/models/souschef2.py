@@ -81,13 +81,11 @@ class Chatbot(Chain, ABC):
         documents = self.get_docs(query=query, recipe_ids=recipe_ids)
         combined_documents = self.combine_documents(documents)
 
-        qa_prompt = f"""Refer to question and use data delimited by triple backticks to answer with an generated recipe.
-        Specifically, use the recipe name and description to match the criteria in the question.
-        Enhance the given ingredients with measurements.
-        Enhance the given instructions by providing a list of numbered steps with detailed and verbose information.
+        qa_prompt = f"""Refer to question and use data delimited by triple backticks as context to answer
+        with an generated recipe.
+        Generate recipe ingredients with measurements.
+        Generate recipe instructions by providing a list of numbered steps with detailed and verbose information.
         If you don't know the answer, just say that you don't know, don't try to make up an answer.
-        If the question is completely unrelated to recipes, apologize and state that you can only answer
-        questions about recipes.
 
         ```{combined_documents}```
 
