@@ -50,7 +50,7 @@ def callback():
         st.session_state.resp_time = t_elapsed
         st.session_state.tokens_in = st.session_state.tokens_in+ tokens_in
         st.session_state.tokens_out = st.session_state.tokens_out + tokens_out
-        print(f"output: {output}")
+        #print(f"output: {output}")
         st.session_state.messages.append({"role": "assistant", "content": output})
     st.session_state.selection = recipe_ids
 
@@ -159,7 +159,7 @@ else:
                                            st.session_state.tokens_out/1000*.03,2)))
     col4.metric("Response Time:", str(st.session_state.resp_time) + " s")
     st.text("")
-    st.header("Sous Chef Chatbot")
+    st.image("../images/SousChefLogo.png")
     st.text("")
     st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
     st.text("")

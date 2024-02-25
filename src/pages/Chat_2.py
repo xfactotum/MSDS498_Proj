@@ -105,7 +105,7 @@ else:
                                            st.session_state.tokens_out2/1000*.03, 2)))
     col4.metric("Response Time:", str(st.session_state.resp_time2) + " s")
     st.text("")
-    st.header("Sous Chef Chatbot")
+    st.image("../images/SousChefLogo.png")
     st.text("")
     st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
     st.text("")
