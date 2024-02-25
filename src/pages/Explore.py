@@ -48,7 +48,8 @@ ax2.set_xticklabels(ax2.get_xticklabels(),rotation=60,fontsize=15)
 ax2.set_ylabel('Percent Daily Value', fontsize = 15)
 
 with st.expander("Nutrition"):
-    with st.container():
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
         st.pyplot(fig2)
 
     col1, col2 = st.columns(2)
@@ -71,8 +72,9 @@ ingredients = ingredients.drop_duplicates(subset=['Ingredient'])
 ingredients = ingredients.reset_index(drop=True)
 
 with st.expander("Ingredients"):
-    uiIngred = st.data_editor(ingredients, use_container_width=True, hide_index=True,
-                              disabled=['Ingredient'])
+    uiIngred = st.multiselect("Select the Ingredients you'd like to avoid:",
+                              ingredients['Ingredient'])
+
 #Create Dataframe of Tags
 tags = pd.DataFrame({'Tag' : recipes['tags'].str.split(',').explode(),
                      'Include' : False})
@@ -83,9 +85,8 @@ tags = tags.drop_duplicates(subset=['Tag'])
 tags = tags.reset_index(drop=True)
 
 with st.expander("Tags"):
-    uiTags = st.data_editor(tags, use_container_width=True, hide_index=True,
-                              disabled=['Tag'])
-
+    uiTags = st.multiselect("Select the Tags you'd like to include:",
+                            tags['Tag'])
 
 selected = recipes[['name','description','tags','minutes','Calories','Total_Fat','Sat_Fat',
                     'Sodium','Sugar','Carbs','Protein','n_steps','steps','n_ingredients',
@@ -115,14 +116,12 @@ if uiProtein[1] != 100:
     selected = selected[selected['Protein'] <= uiProtein[1]]
 
 #Reduce Data based on User's Ingredient Input
-uiIngred = uiIngred[uiIngred['Exclude'] == True]
-if not uiIngred.empty:
-    selected = selected[~selected['ingredients'].str.contains('|'.join(uiIngred['Ingredient']))]
+if len(uiIngred) > 0:
+    selected = selected[~selected['ingredients'].str.contains('|'.join(uiIngred))]
 
 #Reduce Data based on User's Tag Input
-uiTags = uiTags[uiTags['Include'] == True]
-if not uiTags.empty:
-    selected = selected[selected['tags'].str.contains('|'.join(uiTags['Tag']))]
+if len(uiTags) > 0:
+    selected = selected[selected['tags'].str.contains('|'.join(uiTags))]
 
 selected = selected.rename(columns={'name':'Recipe_Name',
                                     'description':'Description',

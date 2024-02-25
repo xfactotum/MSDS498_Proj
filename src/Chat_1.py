@@ -148,9 +148,9 @@ else:
     if "resp_time" not in st.session_state:
         st.session_state.resp_time = 0.00
 
-    st.text("The Chat_1 page will create a dataframe of retrievals similar to the User's query.")
-    st.text("The user will be asked to select a recipe from this dataframe.")
-    st.text("Once selected, Sous Chef will generate recipe instructions for this recipe.")
+    st.text("The Chat_1 page will create a dataframe of the 10 most similar retrievals to the")
+    st.text("User's query. The user will then be asked to select a recipe from this dataframe.")
+    st.text("Once selected, Sous Chef will generate instructions for this recipe.")
     st.text("")
     col1, col2, col3, col4= st.columns(4)
     col1.metric("Prompt Tokens:", st.session_state.tokens_in)
