@@ -12,7 +12,7 @@ Chatbot that recommends recipes and guides people through preparing it.
 3. Go to the src directory and start the app
 ## 🚀 Ready, set, launch!
    ```shell
-   streamlit run Chat.py
+   streamlit run Chat_1.py
    ```
 4. Enter the OpenAI API key then hit enter
 5. Follow the screen instructions

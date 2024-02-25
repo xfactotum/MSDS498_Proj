@@ -5,6 +5,10 @@ import seaborn as sns
 import streamlit as st
 import math
 
+st.title("Explore the Recipes!")
+st.text("Use the interactive filters below to refine your search.")
+my_df = st.empty()
+
 # Load a data frame
 recipes = pd.read_parquet("../data/processed/final_recipe_sample.parquet")
 
@@ -134,4 +138,4 @@ selected = selected.rename(columns={'name':'Recipe_Name',
                                     'steps':'Steps',
                                     'n_ingredients':'Number_of_Ingredients',
                                     'ingredients':'Ingredients'})
-st.dataframe(selected, hide_index = True)
+my_df.dataframe(selected, hide_index = True)

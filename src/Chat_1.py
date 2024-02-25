@@ -16,6 +16,8 @@ import chromadb
 # import streamlit modules
 import streamlit as st
 
+#Import time module
+import time
 
 @st.cache_resource(show_spinner=False)
 def load_data():
@@ -47,7 +49,10 @@ def callback():
     with st.spinner("Processing..."):
         if "selection" in st.session_state:  # if there is another choice selected previously
             st.session_state.chatbot.clear_conversation_history()
-        output = st.session_state.chatbot.answer(query, recipe_ids)
+        output, tokens_in, tokens_out, t_elapsed = st.session_state.chatbot.answer(query, recipe_ids)
+        st.session_state.resp_time = t_elapsed
+        st.session_state.tokens_in = st.session_state.tokens_in+ tokens_in
+        st.session_state.tokens_out = st.session_state.tokens_out + tokens_out
         print(f"output: {output}")
         st.session_state.messages.append({"role": "assistant", "content": output})
     st.session_state.selection = recipe_ids
@@ -72,7 +77,7 @@ def dataframe_with_selections():
                        "name": st.column_config.TextColumn(width="large")
                        },
         disabled=columns,
-        #on_change=callback
+        on_change=callback
     )
 
     # Filter the dataframe using the temporary column, then drop the column
@@ -139,12 +144,31 @@ else:
     if "selection" not in st.session_state:
         st.session_state.selection = []
 
+    if "tokens_in" not in st.session_state:
+        st.session_state.tokens_in = 0
+    if "tokens_out" not in st.session_state:
+        st.session_state.tokens_out = 0
+    if "start_time" not in st.session_state:
+        st.session_state.start_time = 0.00
+    if "resp_time" not in st.session_state:
+        st.session_state.resp_time = 0.00
+
+    st.text("The Chat_1 page will create a dataframe of retrievals similar to the User's query.")
+    st.text("The user will be asked to select a recipe from this dataframe.")
+    st.text("Once selected, Sous Chef will generate recipe instructions for this recipe.")
+    st.text("")
+    col1, col2, col3, col4= st.columns(4)
+    col1.metric("Prompt Tokens:", st.session_state.tokens_in)
+    col2.metric("Response Tokens:", st.session_state.tokens_out)
+    col3.metric("API Cost:", "$"+str(round(st.session_state.tokens_in/1000*.01 + st.session_state.tokens_out/1000*.03,2)))
+    col4.metric("Response Time:", str(st.session_state.resp_time) + " s")
+    st.text("")
     st.header("Sous Chef Chatbot")
+    st.text("")
     st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
     st.text("")
 
     dataframe_with_selections()
-    callback_button = st.button("Generate Recipe", key="callback",on_click=callback)
 
     # Text box for user input
     clear_button = st.button("Reset Conversation", key="clear")
@@ -192,7 +216,10 @@ else:
         elif len(st.session_state.selection) > 0:
             with st.chat_message("assistant"):
                 with st.spinner("Processing..."):
-                    response = st.session_state.chatbot.answer(prompt)
+                    response, tokens_in, tokens_out, t_elapsed = st.session_state.chatbot.answer(prompt)
+                    st.session_state.resp_time = t_elapsed
+                    st.session_state.tokens_in = st.session_state.tokens_in + tokens_in
+                    st.session_state.tokens_out = st.session_state.tokens_out + tokens_out
                     st.write(response)
                     message = {"role": "assistant", "content": response}
                     st.session_state.messages.append(message)

@@ -10,6 +10,8 @@ from langchain.schema.language_model import BaseLanguageModel
 from langchain.vectorstores.base import VectorStore
 from langchain.callbacks.manager import CallbackManagerForChainRun
 
+import time
+
 
 class Chatbot(Chain, ABC):
     llm: BaseLanguageModel
@@ -91,13 +93,15 @@ class Chatbot(Chain, ABC):
 
         Question: {query}
         Detailed Answer:"""
-
+        t_start = time.time()
         answer = self.conversation.run(qa_prompt)
         outputs = {self.output_key: answer}
+        tokens_in = self.llm.get_num_tokens(qa_prompt)
+        tokens_out = self.llm.get_num_tokens(answer)
         if self.memory is not None:
             self.memory.save_context(inputs, outputs)
-
-        return answer
+        t_elapsed = round(time.time() - t_start,4)
+        return answer, tokens_in, tokens_out, t_elapsed
 
     def answer(self, query: str, recipe_ids: Union[None, str] = None):
         if not recipe_ids:
@@ -107,12 +111,16 @@ class Chatbot(Chain, ABC):
             
             Question: {query}
             """
+            t_start = time.time()
             response = self.conversation.run(prompt)
+            tokens_in = self.llm.get_num_tokens(qa_prompt)
+            tokens_out = self.llm.get_num_tokens(answer)
             inputs = {self.input_keys: query}
             outputs = {self.output_key: response}
             if self.memory is not None:
                 self.memory.save_context(inputs, outputs)
-            return response
+            t_elapsed = round(time.time() - t_start,4)
+            return response, tokens_in, tokens_out, t_elapsed
         return self._call(query, recipe_ids)
 
     def clear_conversation_history(self):
