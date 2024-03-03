@@ -150,10 +150,10 @@ else:
 
     with st.container(border = True):
         st.caption("FOR DEVELOPMENT PURPOSES ONLY")
-        st.text("The Chat_1 page will create a dataframe of the 10 most similar retrievals to the")
-        st.text("User's query. The user will then be asked to select a recipe from this dataframe.")
-        st.text("Once selected, Sous Chef will generate instructions for this recipe.")
-        st.text("")
+        st.markdown("The Chat_1 page will create a dataframe of the 10 most similar retrievals to the "+
+                    "User's query. The user will then be asked to select a recipe from this dataframe. "+
+                    "Once selected, Sous Chef will generate instructions for this recipe.")
+        st.markdown("")
         col1, col2 = st.columns([3,1])
         with col1.container(border = True):
             st.caption("CUMULATIVE FOR THIS SESSION")
@@ -165,9 +165,9 @@ else:
         col2.metric("Last Response Time:", str(st.session_state.resp_time) + " s")
 
     st.image("../images/SousChefLogo.png")
-    st.text("")
-    st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
-    st.text("")
+    st.markdown("")
+    st.markdown("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
+    st.markdown("")
 
     dataframe_with_selections()
 

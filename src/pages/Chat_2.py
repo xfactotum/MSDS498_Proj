@@ -99,9 +99,9 @@ else:
 
     with ((((st.container(border = True))))):
         st.caption("FOR DEVELOPMENT PURPOSES ONLY")
-        st.text("The Chat_2 page will retrieve the k most similar recipes to the User's query.")
-        st.text("These k recipes are used as context when generating the response.")
-        st.text("")
+        st.markdown("The Chat_2 page will retrieve the k most similar recipes to the User's query. " +
+                    "These k recipes are used as context when generating the response.")
+        st.markdown("")
         colA, colB = st.columns([2, 1])
         with colA:
             st.session_state.k = st.select_slider('Select a value for k:', options = [3,4,5,6,7,8,9,10],value = 3)
@@ -116,9 +116,9 @@ else:
         col2.metric("Last Response Time:", str(st.session_state.resp_time2) + " s")
 
     st.image("../images/SousChefLogo.png")
-    st.text("")
-    st.text("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
-    st.text("")
+    st.markdown("")
+    st.markdown("Hello! I'm here to help you decide on a recipe to use while preparing your meal.")
+    st.markdown("")
 
     # Text box for user input
     clear_button = st.button("Reset Conversation", key="clear")
