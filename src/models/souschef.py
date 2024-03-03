@@ -113,7 +113,7 @@ class Chatbot(Chain, ABC):
             """
             t_start = time.time()
             response = self.conversation.run(prompt)
-            tokens_in = self.llm.get_num_tokens(qa_prompt)
+            tokens_in = self.llm.get_num_tokens(prompt)
             tokens_out = self.llm.get_num_tokens(answer)
             inputs = {self.input_keys: query}
             outputs = {self.output_key: response}
